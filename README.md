@@ -1,9 +1,10 @@
 -Archivos grupo 7:
+```
 Libreria-17-51_S9_L001_R1_001.fastq.gz
 Libreria-17-51_S9_L001_R2_001.fastq.gz
 Libreria-17-68-R_S7_L001_R1_001.fastq.gz
 Libreria-17-68-R_S7_L001_R2_001.fastq.gz
-
+```
 
 -Carpetas:
 ● DNAref, para almacenar el DNA de referencia
