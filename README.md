@@ -7,6 +7,7 @@ Libreria-17-68-R_S7_L001_R2_001.fastq.gz
 ```
 
 -Carpetas:
+```
 ● DNAref, para almacenar el DNA de referencia
 ● RawReads, para almacenar los FASTQ obtenidos de la secuenciación (datos crudos)
 ● FastQC_rawReads, para almacenar los reportes de FastQC de los datos crudos
@@ -14,6 +15,7 @@ Libreria-17-68-R_S7_L001_R2_001.fastq.gz
 ● FastQC_trimmedReads, para almacenar los reportes de FastQC de los datos podados
 ● Aligned_reads, para almacenar los archivos de alineamiento
 ● Variant_calling, para almacenar las variantes identificadas
+```
 
 -Creacion de enlace simbolico:
 ```
