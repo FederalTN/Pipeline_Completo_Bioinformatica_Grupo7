@@ -39,19 +39,21 @@ fastqc RawReads/*.fq.gz -o FastQC_rawReads
 --Trimmomatic, comando utilizado para la creacion de Trimmed_reads :
 
 (EJ: RawReads/L1R1.fq.gz -> Trimmed_reads/p_L1R1.fq.gz)
+
+Para L1
 ```
-input_dir="RawReads"
-output_dir="Trimmed_reads"
-prefix="p_"
+java -jar /usr/share/java/trimmomatic-0.39.jar PE RawReads/L1R1.fq.gz RawReads/L1R2.fq.gz \
+Trimmed_reads/p_L1R1.fq.gz Trimmed_reads/u_L1R1.fq.gz Trimmed_reads/p_L1R2.fq.gz Trimmed_reads/u_L1R2.fq.gz \
+ILLUMINACLIP:/usr/share/trimmomatic/NexteraPE-PE.fa:2:30:10:8 \
+LEADING:3 TRAILING:3 SLIDINGWINDOW:4:20 MINLEN:20
 
-mkdir -p "$output_dir"
-
-for file in "$input_dir"/*.fq.gz; do
-  filename=$(basename "$file")
-  output_file="$output_dir/$prefix$filename"
-
-  java -jar /usr/share/java/trimmomatic-0.39.jar SE "$file" "$output_file" ILLUMINACLIP:/usr/share/trimmomatic/TruSeq3-SE.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:20 MINLEN:20
-done
+```
+Para L2
+```
+java -jar /usr/share/java/trimmomatic-0.39.jar PE RawReads/L2R1.fq.gz RawReads/L2R2.fq.gz \
+Trimmed_reads/p_L2R1.fq.gz Trimmed_reads/u_L2R1.fq.gz Trimmed_reads/p_L2R2.fq.gz Trimmed_reads/u_L2R2.fq.gz \
+ILLUMINACLIP:/usr/share/trimmomatic/NexteraPE-PE.fa:2:30:10:8 \
+LEADING:3 TRAILING:3 SLIDINGWINDOW:4:20 MINLEN:20
 
 ```
 
@@ -59,7 +61,7 @@ done
 
 (EJ: Trimmed_reads/p_L1R1.fq.gz -> FastQC_trimmedReads/p_L1R1.html)
 ```
-fastqc Trimmed_reads/*.fq.gz -o FastQC_trimmedReads
+fastqc Trimmed_reads/p_*.fq.gz -o FastQC_trimmedReads
 ```
 
 ----ALINEAMIENTO
@@ -87,54 +89,61 @@ for file in "${input_dir}"*.fq.gz; do
     # Obtener el nombre base del archivo sin la extensión
     filename=$(basename "$file" .fq.gz)
     # Crear el nombre de archivo SAM de salida
-    output_file="${output_dir}${filename}.sam"
+    output_file="${output_dir}${filename}.bam"
     # Aplicar el comando de alineamiento para el archivo actual
     bwa mem "${ref}" "${file}" > "${output_file}"
 done
 ```
 
---Cambiamos los archivos sam a bam:
+-- Alineamiento, ordenamiento y indexacion en archivos BAM mediante bwa y samtools
+Para L1:
 ```
-#!/bin/bash
-
-# Directorio de entrada con archivos SAM
-input_dir="./Aligned_reads/"
-
-# Directorio de salida para los archivos BAM
-output_dir="./Aligned_reads/"
-
-# Iterar sobre cada archivo SAM en el directorio Aligned_reads
-for file in "${input_dir}"*.sam; do
-    # Obtener el nombre base del archivo sin la extensión
-    filename=$(basename "$file" .sam)
-    # Crear el nombre de archivo BAM de salida
-    output_file="${output_dir}${filename}.bam"
-    # Convertir el archivo SAM a BAM
-    samtools view -bS "${file}" > "${output_file}"
-done
+bwa mem -t 8 ./DNAref/GRCh38.fasta ./Trimmed_reads/p_L1R1.fq.gz ./Trimmed_reads/p_L1R2.fq.gz > ./Aligned_reads/L1Aligned.bam
+samtools sort -o ./Aligned_reads/L1Aligned_sort.bam ./Aligned_reads/L1Aligned.bam
+samtools index ./Aligned_reads/L1Aligned_sort.bam
+```
+Para L2
+```
+bwa mem -t 8 ./DNAref/GRCh38.fasta ./Trimmed_reads/p_L2R1.fq.gz ./Trimmed_reads/p_L2R2.fq.gz > ./Aligned_reads/L2Aligned.bam
+samtools sort -o ./Aligned_reads/L2Aligned_sort.bam ./Aligned_reads/L2Aligned.bam
+samtools index ./Aligned_reads/L2Aligned_sort.bam
 ```
 
--- Ordenamiento y indexacion de los archivos bam
-```
-#!/bin/bash
 
-# Directorio de entrada con archivos BAM
-input_dir="./Aligned_reads/"
 
-# Directorio de salida para los archivos ordenados y indexados
-output_dir="./Aligned_reads/"
+WIP ZONE!!!!
 
-# Iterar sobre cada archivo BAM en el directorio Aligned_reads
-for file in "${input_dir}"*.bam; do
-    # Obtener el nombre base del archivo sin la extensión
-    filename=$(basename "$file" .bam)
-    # Crear el nombre de archivo para el archivo ordenado
-    sorted_file="${output_dir}${filename}_sorted.bam"
-    # Crear el nombre de archivo para el archivo de índice
-    index_file="${output_dir}${filename}.bai"
-    # Ordenar el archivo BAM
-    samtools sort "${file}" -o "${sorted_file}"
-    # Indexar el archivo ordenado
-    samtools index "${sorted_file}" "${index_file}"
-done
-```
+bwa mem -t 8 ./DNAref/GRCh38.fasta ./Trimmed_reads/p_L1R1.fq.gz ./Trimmed_reads/p_L1R2.fq.gz > ./Aligned_reads/output1.bam
+samtools sort -o ./Aligned_reads/output1_sort.bam ./Aligned_reads/output1.bam
+samtools index ./Aligned_reads/output1_sort.bam
+
+bwa mem -t 4 ./DNAref/GRCh38.fasta ./Trimmed_reads/p_L2R1.fq.gz ./Trimmed_reads/p_L2R2.fq.gz | samtools sort -o ./Aligned_reads/output2.sorted.bam -
+
+samtools index ./Aligned_reads/output2.sorted.bam
+
+
+
+bwa mem -t 8 ./DNAref/GRCh38.fasta ./RawReads/L1R1.fq.gz ./RawReads/L1R2.fq.gz | samtools sort -o ./Aligned_reads/output4.sorted.bam -
+
+samtools index ./Aligned_reads/output3.sorted.bam
+
+
+bwa mem -t 8 ./DNAref/GRCh38.fasta ./RawReads/Libreria-17-51_S9_L001_R1_001.fastq.gz ./RawReads/Libreria-17-51_S9_L001_R2_001.fastq.gz | samtools sort -o ./Aligned_reads/output4.sorted.bam -
+
+samtools index ./Aligned_reads/output4.sorted.bam
+
+
+
+samtools index ./Aligned_reads/p_L1R1_sorted.bam ./Aligned_reads/p_L1R1_sorted.bam.fai
+
+
+
+
+
+
+
+(funciona el trimmed!)
+java -jar /usr/share/java/trimmomatic-0.39.jar PE RawReads/L1R1.fq.gz RawReads/L1R2.fq.gz \
+Trimmed_reads/p_L1R1.fq.gz Trimmed_reads/u_L1R1.fq.gz Trimmed_reads/p_L1R2.fq.gz Trimmed_reads/u_L1R2.fq.gz \
+ILLUMINACLIP:/usr/share/trimmomatic/TruSeq3-SE.fa:2:30:10 \
+LEADING:3 TRAILING:3 SLIDINGWINDOW:4:20 MINLEN:20
