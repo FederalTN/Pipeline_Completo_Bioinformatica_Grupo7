@@ -17,17 +17,26 @@ Libreria-17-68-R_S7_L001_R2_001.fastq.gz
 ● Variant_calling, para almacenar las variantes identificadas
 ```
 
---Creacion de enlace simbolico:
+Glosario:
+A -> B: El input del comando es "A" y el output es "B"
+
+--Creacion de enlace simbolico :
+
+(EJ: RawReads/Libreria-17-51_S9_L001_R1_001.fastq.gz -> RawReads/L1R1.fq.gz)
 ```
 ln -s <ruta_del_objetivo> <ruta_del_enlace>
 ```
 
---FastQC, comando utilizado para la creacion de FastQC_rawReads desde RawReads:
+--FastQC, comando utilizado para la creacion de FastQC_rawReads desde RawReads :
+
+(EJ: RawReads/L1R1.fq.gz -> FastQC_rawReads/L1R1_fastqc.html)
 ```
 fastqc RawReads/*.fq.gz -o FastQC_rawReads
 ```
 
---trimmomatic, comando utilizado para la creacion de Trimmed_reads:
+--Trimmomatic, comando utilizado para la creacion de Trimmed_reads :
+
+(EJ: RawReads/L1R1.fq.gz -> Trimmed_reads/p_L1R1.fq.gz)
 ```
 input_dir="RawReads"
 output_dir="Trimmed_reads"
@@ -45,6 +54,8 @@ done
 ```
 
 --FastQC, comando utilizado para la creacion de FastQC_rawReads desde Trimmed_reads:
+
+(EJ: Trimmed_reads/p_L1R1.fq.gz -> FastQC_rawReads/p_L1R1.html)
 ```
 fastqc Trimmed_reads/*.fq.gz -o FastQC_rawReads
 ```
