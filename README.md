@@ -84,3 +84,21 @@ bwa mem -t 8 ./DNAref/GRCh38.fasta ./Trimmed_reads/p_L2R1.fq.gz ./Trimmed_reads/
 samtools sort -o ./Aligned_reads/L2Aligned_sort.bam ./Aligned_reads/L2Aligned.bam
 samtools index ./Aligned_reads/L2Aligned_sort.bam
 ```
+
+----VARIANT CALLING
+
+--creación de archivo BCF intermedio (pileup)
+```
+samtools mpileup ./Aligned_reads/L1Aligned_sort.bam ./Aligned_reads/L2Aligned_sort.bam -g -f ./DNAref/GRCh38.fasta > ./Variant_calling/pileup.bcf
+
+```
+--calling
+```
+
+bcftools call -O b -vc ./Variant_calling/pileup.bcf > ./Variant_calling/varcall.bcf
+```
+
+--conversion bcf -> vcf
+```
+bcftools view ./Variant_calling/varcall.bcf > ./Variant_calling/varcall.vcf
+```
